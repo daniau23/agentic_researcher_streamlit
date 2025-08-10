@@ -1,16 +1,21 @@
 # graph_web/loader.py
 """
-HTML loader that extracts content by prioritizing headings, sections,
-ordered/unordered lists (ol/ul/li), and div blocks using BeautifulSoup.
+HTML loader using requests + BeautifulSoup with targeted extraction.
 
-This avoids Selenium. Works reliably on Streamlit Cloud / HF Spaces.
+Priority extraction order:
+  1. <h1 class="title hypothesis_container">
+  2. <h2 id="html-abstract-title">
+  3. all <div class="html-p"> elements (joined as paragraphs)
+Fallback: full visible-page text extraction.
+
+Returns: {"content": <truncated_text>}
 """
 
 from shared import ResearchState
-from typing import Dict, Iterable
+from typing import Dict, Optional
 import logging
 import requests
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
@@ -24,121 +29,101 @@ HEADERS = {
     )
 }
 
-# Tags we care about, in preferred order when searching the page
-PRIORITY_TAGS = [
-    "h1", "h2", "h3", "h4", "h5", "h6",
-    "section",
-    "ol", "ul",  # we'll extract their li children
-    "div",
-]
 
-
-def _safe_get_text(elem: Tag) -> str:
-    """Return cleaned text for a BeautifulSoup Tag."""
-    # separator ensures lists / nested blocks are spaced
-    return elem.get_text(separator=" ", strip=True)
-
-
-def _iter_priority_blocks(soup: BeautifulSoup) -> Iterable[Tag]:
-    """
-    Yield tag elements from the document in DOM order but filtered to our
-    priority tags. We skip elements that are likely to be navigation, footer, ads.
-    """
-    # Remove obviously irrelevant elements first
-    for bad in soup(["script", "style", "noscript", "iframe", "svg", "picture", "meta", "link"]):
-        try:
-            bad.decompose()
-        except Exception:
-            pass
-
-    # Also remove site chrome elements that commonly contain duplicated text
-    for chrome in soup.find_all(["header", "footer", "nav", "aside", "form"]):
-        try:
-            chrome.decompose()
-        except Exception:
-            pass
-
-    # Walk the document and yield only the priority tags in DOM order
-    for tag in soup.find_all(PRIORITY_TAGS):
-        # Skip empty tags
-        txt = _safe_get_text(tag)
-        if not txt:
-            continue
-        # Skip tiny fragments that are unlikely to be meaningful
-        if len(txt) < 30:
-            # but keep headings even if short (they can be meaningful)
-            if tag.name not in {"h1", "h2", "h3", "h4", "h5", "h6"}:
-                continue
-        yield tag
-
-
-def _fetch_and_extract(url: str) -> str:
-    """Fetch the URL and extract prioritized content as a single string."""
+def _fetch_html(url: str) -> Optional[str]:
     try:
         resp = requests.get(url, headers=HEADERS, timeout=15)
         resp.raise_for_status()
+        return resp.text
     except Exception as e:
         logger.warning("requests fetch failed for %s: %s", url, e)
+        return None
+
+
+def _extract_targeted(soup: BeautifulSoup) -> Optional[str]:
+    """
+    Try the prioritized selectors:
+      - h1.title.hypothesis_container
+      - h2#html-abstract-title
+      - div.html-p (join as paragraphs)
+    Return the first match's text or None if none found.
+    """
+    # 1) h1 with both classes 'title' and 'hypothesis_container'
+    el = soup.select_one("h1.title.hypothesis_container")
+    if el:
+        text = el.get_text(separator=" ", strip=True)
+        if text:
+            logger.info("Extracted content using selector: h1.title.hypothesis_container")
+            return text
+
+    # 2) h2 with id html-abstract-title
+    el = soup.select_one("h2#html-abstract-title")
+    if el:
+        text = el.get_text(separator=" ", strip=True)
+        if text:
+            logger.info("Extracted content using selector: h2#html-abstract-title")
+            return text
+
+    # 3) all div.html-p (collect paragraphs)
+    divs = soup.select("div.html-p")
+    if divs:
+        paragraphs = []
+        for d in divs:
+            ptext = d.get_text(separator=" ", strip=True)
+            if ptext:
+                paragraphs.append(ptext)
+        if paragraphs:
+            joined = "\n\n".join(paragraphs)
+            logger.info("Extracted content using selector: div.html-p (joined %d paragraphs)", len(paragraphs))
+            return joined
+
+    return None
+
+
+def _extract_visible_text(soup: BeautifulSoup) -> str:
+    """Fallback generic visible text extraction."""
+    for tag in soup(["script", "style", "noscript", "iframe", "header", "footer", "svg"]):
+        try:
+            tag.decompose()
+        except Exception:
+            pass
+
+    texts = list(soup.stripped_strings)
+    if not texts:
         return "No content"
-
-    html = resp.text or ""
-    # Prefer lxml if available (faster); fall back to html.parser
-    try:
-        soup = BeautifulSoup(html, "lxml")
-    except Exception:
-        soup = BeautifulSoup(html, "html.parser")
-
-    parts = []
-    seen_texts = set()
-
-    for elem in _iter_priority_blocks(soup):
-        if elem.name in {"ol", "ul"}:
-            # join li children in order
-            lis = elem.find_all("li")
-            li_texts = []
-            for li in lis:
-                t = _safe_get_text(li)
-                if t and t not in seen_texts:
-                    li_texts.append(t)
-                    seen_texts.add(t)
-            if li_texts:
-                parts.append(" • ".join(li_texts))  # bullet-style join for readability
-        else:
-            text = _safe_get_text(elem)
-            if not text:
-                continue
-            # avoid duplicates
-            if text in seen_texts:
-                continue
-            seen_texts.add(text)
-            parts.append(text)
-
-        # stop early if we already have enough content
-        if sum(len(p) for p in parts) >= MAX_CHARS:
-            break
-
-    if not parts:
-        return "No content"
-
-    # Join with two newlines between blocks to preserve some structure
-    full_text = "\n\n".join(parts)
-    return full_text
+    return " ".join(texts)
 
 
 def load_node(state: ResearchState) -> Dict[str, str]:
     """
-    Load the page content using requests + BeautifulSoup and return dict with 'content'.
+    Load the page content from state.url using requests + BeautifulSoup,
+    preferring targeted selectors first.
     """
     if not state.url:
         return {"content": "No URL to load"}
 
     url = str(state.url)
+    html = _fetch_html(url)
+    if not html:
+        return {"content": "No content"}
+
+    # Parse using lxml if available for speed, else fallback
     try:
-        content = _fetch_and_extract(url)
+        soup = BeautifulSoup(html, "lxml")
+    except Exception:
+        soup = BeautifulSoup(html, "html.parser")
+
+    # Try targeted extraction
+    try:
+        targeted = _extract_targeted(soup)
+        if targeted:
+            content = targeted
+        else:
+            # Fallback to full visible text
+            content = _extract_visible_text(soup)
     except Exception as e:
-        logger.exception("Unexpected error extracting content from %s: %s", url, e)
+        logger.exception("Error during extraction for %s: %s", url, e)
         content = "No content"
 
-    # truncate to MAX_CHARS for downstream safety
     truncated = content[:MAX_CHARS]
     return {"content": truncated}
