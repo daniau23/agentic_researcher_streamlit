@@ -30,7 +30,7 @@ This builds upon the previous repo
 ### **Replicating this project and Example Usage**
 Kindly refer to the GitHub link for the previous project for replication.
 
-- **Run `pip install pytest>=8.4` and `pip install pytest-mock==3.14` after using the environment.yml from the previous repo
+- **Run `pip install pytest>=8.4` and `pip install pytest-mock==3.14` after using the environment.yml from the previous repo**
 ### **Example Streamlit Outputs**
 ![Abstract-generator](img/streamlit_abstract_generator.png)
 
