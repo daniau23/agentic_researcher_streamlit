@@ -1,7 +1,8 @@
 from langgraph.graph import StateGraph, END
 from shared import ResearchState
 from .search import search_node
-from .loader import load_node
+# from .loader import load_node
+from .loader_deployment import load_node
 from .summarizer import summarize_node
 
 builder = StateGraph(ResearchState)
