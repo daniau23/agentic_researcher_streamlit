@@ -28,13 +28,18 @@ This builds upon the previous repo
 ![LangSmith](img/LangSmith_run.png)
 
 ### **Replicating this project and Example Usage**
-Kindly refer to the GitHub link for the previous project for replication.
-
+- Kindly refer to the GitHub link for the previous project for replication.
 - **Run `pip install pytest>=8.4` and `pip install pytest-mock==3.14` after using the environment.yml from the previous repo**
-### **Example Streamlit Outputs**
-![Abstract-generator](img/streamlit_abstract_generator.png)
 
-![Webpage-summariser](img/streamlit_web_page_summariser.png)
+### **Example Streamlit Outputs in Development**
+![Abstract-generator](img/streamlit_abstract_generator_dev.png)
+
+![Webpage-summariser](img/streamlit_web_page_summariser_dev.png)
+
+### **Example Streamlit Outputs in Production**
+![Abstract-generator](img/streamlit_abstract_generator_production.png)
+
+![Webpage-summariser](img/streamlit_web_page_summariser_production.png)
 
 **NB:** 
 - **You must have a huggingface api key to use the streamlit app. Kindly refer to the previous github repo to know how to generate a huggingface api key**
@@ -45,3 +50,4 @@ Here is the Publication on;
 ### **Issues faced**:
 - Integrating tests for the LLM agents
 - Conflicts when deploying app on Streamlit, hence the environment.yml file was removed. 
+- Selenium was hard to incorporate for deployment, hence beautisoup was used for an attempt to read the web data
