@@ -27,19 +27,21 @@ This builds upon the previous repo
 
 ![LangSmith](img/LangSmith_run.png)
 
-### **Replicating this project aand Example Usage**
+### **Replicating this project and Example Usage**
 Kindly refer to the GitHub link for the previous project for replication.
+
+- **Run `pip install pytest>=8.4` and `pip install pytest-mock==3.14` after using the environment.yml from the previous repo
 ### **Example Streamlit Outputs**
 ![Abstract-generator](img/streamlit_abstract_generator.png)
 
 ![Webpage-summariser](img/streamlit_web_page_summariser.png)
 
-**NB: You must have a huggingface api key to use the streamlit app. Kindly refer to the previous github repo to know how to generate a huggingface api key**
+**NB:** 
+- **You must have a huggingface api key to use the streamlit app. Kindly refer to the previous github repo to know how to generate a huggingface api key**
 
 Here is the Publication on;
 - [Edit ReadyTensor](https://app.readytensor.ai/publications/the-agentic-research-abstract-generator-and-web-content-summariser-agent-with-langraph-gYeyu875mKsB)
 
 ### **Issues faced**:
-- Trying to tie everything together using LangGraph and make it modular. I believe it could be easily done better using Crew.ai which is dedicated to agents orchestration. (which should be explored)
-- Exceeded the monthly limit with Huggingface inference point due to being on the free subscription plan. A pro plan should be used for further testing or use Ollama?
-- URLs passed needs to be websites without authentication, I recommend using mdpi.com for research articles.
+- Integrating tests for the LLM agents
+- Conflicts when deploying app on Streamlit, hence the environment.yml file was removed. 
