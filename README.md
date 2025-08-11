@@ -48,6 +48,6 @@ Here is the Publication on;
 - [ReadyTensor](https://app.readytensor.ai/publications/langgraph-agentic-research-abstract-generator-and-web-content-summariser-agent-with-streamlit-J0fCORmpykZn)
 
 ### **Issues faced**:
-- Integrating tests for the LLM agents
+- Integrating tests for the LLM agents.
 - Conflicts when deploying app on Streamlit, hence the environment.yml file was removed. 
-- Selenium was hard to incorporate for deployment, hence beautisoup was used for an attempt to read the web data
+- Selenium was hard to incorporate for deployment, hence beautisoup was used for an attempt to read the web data.
