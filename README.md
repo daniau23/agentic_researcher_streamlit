@@ -45,7 +45,7 @@ This builds upon the previous repo
 - **You must have a huggingface api key to use the streamlit app. Kindly refer to the previous github repo to know how to generate a huggingface api key**
 
 Here is the Publication on;
-- [Edit ReadyTensor](https://app.readytensor.ai/publications/the-agentic-research-abstract-generator-and-web-content-summariser-agent-with-langraph-gYeyu875mKsB)
+- [ReadyTensor](https://app.readytensor.ai/publications/langgraph-agentic-research-abstract-generator-and-web-content-summariser-agent-with-streamlit-J0fCORmpykZn)
 
 ### **Issues faced**:
 - Integrating tests for the LLM agents
