@@ -12,7 +12,7 @@ This builds upon the previous repo
 - 📈 Testing features incorporated
 - 🚀 Model deployment with streamlit
 
-![Research Assistant Flow Chart](img/Agentic-Research-Assistant-AI-pub-main-image.jpg)
+![Research Assistant Flow Chart](img/Agentic-Research-Assistant-AI-pub-production-main.jpg)
 
 ### **How the project goes**
 - All files can only work after installing all dependencies in the `environment.yml` file
