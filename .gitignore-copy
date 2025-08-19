@@ -1,6 +1,6 @@
 # .gitignore
-.gitignore copy
 # .gitattributes
+.gitignore-copy
 __pycache__
 .pytest_cache
 *.pyc
