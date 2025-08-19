@@ -1,0 +1,14 @@
+# .gitignore
+# .gitattributes
+__pycache__
+.pytest_cache
+*.pyc
+graph_article/__pycache__
+graph_web/__pycache__
+utils/__pycache__
+tests/__pycache__
+img/Agentic Research Assistant AI.drawio
+notes.md
+pytestcopy.md
+.env
+yml_file/environment copy.yml
