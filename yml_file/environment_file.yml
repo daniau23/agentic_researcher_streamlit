@@ -1,0 +1,57 @@
+name: production
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # # Latest versions
+  # # conda channels
+  # # For NLP
+  - python=3.11
+  - ipykernel
+  - wordcloud >=1.8.0 
+  - textblob
+  - spacy=3.6
+  - gensim>=4.3.0
+  - scikit-learn=1.5.0
+  - seaborn=0.13.2
+  - plotly=5.22.0
+  - pandas=2.2.2
+  - matplotlib
+  - scipy=1.10.1 
+  - pip
+  - pip:
+    - streamlit==1.45
+    - pytest>=8.4
+    - pytest-mock==3.14
+  # # Latest versions
+  # # For NLP & LLMS
+    - nltk==3.9.1
+    - sentence-transformers==2.7.0 
+    - bertopic==0.17.0
+    - scikit-llm==1.4.1
+    - openai==1.78.0
+    - langchain-core==0.3.59 
+    - langsmith==0.3.42 
+    - langchain==0.3.25
+    - langchain-community==0.3.23
+    - transformers==4.51.3
+    - ctransformers==0.2.27
+    - datasets==3.6.0
+    - evaluate==0.4.3
+    - deeplake==3.9.44
+    - selenium==4.32.0
+    - python-dotenv==1.1.0
+    - google-api-python-client==2.169.0
+    - google-search-results==2.4.2
+    - duckduckgo-search==8.0.1
+    - langchain-huggingface==0.2.0
+    - langchain-google-community==2.0.7
+    - newspaper3k==0.2.8
+    - tiktoken==0.9.0
+    - lxml_html_clean==0.4.2
+    - pyvis==0.3.2
+    - unstructured==0.17.2
+    - cohere==5.15.0
+    - langchain-cohere==0.4.4
+    - langchainhub==0.1.21
+    - langchain-experimental==0.3.4
